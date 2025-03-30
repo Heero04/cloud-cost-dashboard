@@ -1,5 +1,4 @@
-""" 
-This AWS Glue job performs the following operations:
+""" This AWS Glue job performs the following operations:
   1. Reads command line arguments for job name, input and output paths
   2. Sets up Spark and Glue contexts for data processing
   3. Reads JSON data from S3 input path with multiline support
@@ -7,9 +6,7 @@ This AWS Glue job performs the following operations:
   5. Converts JSON data to CSV format using Pandas
   6. Uploads resulting CSV file to S3 output location with timestamp in filename
   7. Includes logging for successful completion and error cases
-
 """
-
 import sys
 import json
 import csv
@@ -61,19 +58,21 @@ try:
             Bucket=bucket_name,
             Key=csv_key,
             Body=csv_buffer.getvalue(),
-            ContentType="text/csv"  # Set correct content type
+            ContentType="text/csv" 
         )
 
-        logger.info(f" CSV File Successfully Written to S3: s3://{bucket_name}/{csv_key}")
+        logger.info("CSV file successfully written to S3.")
+
 
     else:
-        logger.warning("⚠️ No data found in JSON file.")
+        logger.warning("No data found in JSON file.")
 
 except Exception as e:
-    logger.error(f" Error occurred: {str(e)}")
+    logger.error(f"Error occurred: {str(e)}")
     raise
 
 finally:
     # Clean up Spark context
     if 'sc' in locals():
         sc.stop()
+

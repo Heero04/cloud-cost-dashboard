@@ -1,4 +1,4 @@
+# AWS region where resources will be created
 variable "aws_region" {
-  description = "AWS region for deployment"
   default     = "us-east-1"
 }

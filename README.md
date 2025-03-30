@@ -4,67 +4,93 @@ Automate AWS cost tracking, monitor expenses, and receive alerts for cost spikes
 ## Table of Contents
 1. Introduction
 2. Features
-3. Architecture Diagram
+3. Architecture Overview
 4. Technologies Used
 5. Prerequisites
 6. Setup & Deployment
 7. Usage
 8. Future Enhancements
-9. Contributing
-10. License
 
 ## Introduction
-The Cloud Cost Optimization Dashboard is designed to help AWS users automate the tracking of their cloud expenses. It provides real-time monitoring and alerts for unexpected cost spikes, ensuring better budget management and cost control.
+The **Cloud Cost Optimization Dashboard** automates the tracking and monitoring of AWS cloud expenses. It helps prevent cost overruns by providing real-time cost insights and alerting users about potential spikes.
 
 ## Features
-- Automated Cost Tracking: Utilizes AWS Lambda and the Cost Explorer API to fetch daily AWS cost data.
-- Real-Time Monitoring: Implements CloudWatch to detect and alert on cost anomalies.
-- Instant Notifications: Sends email alerts via SNS when spending exceeds predefined thresholds.
-- Infrastructure as Code: Employs Terraform for seamless deployment and management of AWS resources.
+- **Automated Cost Tracking**: Uses AWS Lambda to fetch and process AWS cost data.
+- **Real-Time Monitoring**: Integrates AWS CloudWatch for tracking and logging Lambda executions.
+- **Cost Alerts**: Sends notifications via AWS SNS when cost anomalies are detected.
+- **Data Transformation & Storage**: Utilizes AWS Glue to convert JSON data to CSV and store it in S3.
+- **Visualization**: Uses AWS Athena to query cost data and Power BI to visualize insights.
+
+## Architecture Overview
+1. **AWS Well-Architected Tool** evaluates cloud architecture best practices.
+2. **EventBridge** triggers **AWS Lambda** to fetch cost data.
+3. **IAM Roles & Policys** enforce least privilege access for security.
+4. **AWS Lambda** retrieves cost data and:
+   - Stores it in **S3** (encrypted with SSE-S3/KMS).
+   - Sends alerts via **SNS** (encrypted with KMS) to **Gmail**.
+   - Logs execution details in **CloudWatch**.
+5. **AWS Glue** transforms JSON data into CSV format and stores it back in **S3**.
+6. **AWS Athena** queries cost data from S3.
+7. **Power BI** visualizes the cost data from Athena.
 
 ## Architecture Diagram
 
 ![Architecture Diagram](architecture.png)
 
 ## Technologies Used
-- AWS Lambda: Serverless compute service for running code in response to events.
-- AWS Cost Explorer API: Retrieves detailed AWS cost and usage data.
-- AWS CloudWatch: Monitoring service for AWS cloud resources and applications.
-- AWS SNS (Simple Notification Service): Facilitates message delivery to subscribing endpoints or clients.
-- Terraform: Infrastructure as Code tool for building and managing cloud resources.
-- Python: Programming language used for the Lambda function.
+- **AWS Lambda** - Fetches cost data.
+- **AWS Cost Explorer API** - Retrieves AWS cost and usage details.
+- **AWS CloudWatch** - Logs Lambda execution and detects anomalies.
+- **AWS SNS** - Sends email alerts.
+- **AWS Glue** - Transforms data from JSON to CSV.
+- **AWS Athena** - Queries cost data from S3.
+- **Power BI** - Visualizes cost insights.
+- **IAM & KMS** - Secures data access and encryption.
 
 ## Prerequisites
-Before deploying this project, ensure you have the following:
-
-- AWS Account: Active account with Cost Explorer enabled.
-- Terraform: Installed on your local machine (version 1.0 or higher).
-- AWS CLI: Installed and configured with necessary permissions.
-- Email Address: For receiving SNS notifications.
+- **AWS Account** with Cost Explorer enabled.
+- **AWS CLI** installed and configured.
+- **Terraform** installed.
+- **Email** to receive cost alerts.
+- **Power BI** installed.
+- **Athena ODBC driver** installed and configured.
 
 ## Setup & Deployment
-### 1. Clone the Repository
-
-    git clone https://github.com/Heero04/cloud-cost-dashboard.git
-    cd cloud-cost-dashboard
-
-### 2. Initialize and Apply Terraform Configuration
-
-
-    terraform init
-    terraform apply -auto-approve
-
-This process will set up the necessary AWS resources, including Lambda functions, CloudWatch alarms, and SNS topics.
-
-### 3. Confirm SNS Subscription
-After deployment, check your email for a subscription confirmation from AWS SNS. Confirm the subscription to start receiving alerts.
+1. **Clone the Repository**
+   ```sh
+   git clone https://github.com/Heero04/cloud-cost-dashboard.git
+   cd cloud-cost-dashboard
+   ```
+2. **Initialize and Deploy Infrastructure**
+   ```sh
+   terraform init
+   terraform apply -auto-approve
+   ```
+3. **Confirm SNS Subscription**
+   - Check your email for an SNS confirmation and accept it to start receiving alerts.
 
 ## Usage
-- Monitoring Costs: The Lambda function runs daily, fetching cost data and evaluating it against set thresholds.
-- Receiving Alerts: If expenses exceed the defined limits, an email notification is sent via SNS.
-- Adjusting Thresholds: Modify the CloudWatch alarm settings in the Terraform configuration to change alert thresholds.
+- The **Lambda function** runs weekly to fetch cost data.
+- **CloudWatch** logs execution and detects cost spikes.
+- **SNS** sends an email alert if a cost anomaly is found.
+- **AWS Glue** processes data for structured storage.
+- **Athena** allows querying cost data.
+- **Power BI** visualizes cost trends for insights.
 
 ## Future Enhancements
-- Data Storage: Integrate AWS DynamoDB to store historical cost data for trend analysis.
-- Visual Dashboards: Implement AWS QuickSight or Grafana for interactive data visualization.
-- Automated Resource Optimization: Develop features to automatically adjust or terminate underutilized resources based on usage patterns.
+- **Anomaly Detection**: Implement ML-based cost prediction.
+- **Automated Cost Optimization**: Identify and shut down underutilized resources.
+- **Notification System Expansion**: Expand notification to diffrent platforms.
+- **Athena CTAS**: Replace Glue with an Athena CTAS query.
+
+## Dashboard Screenshots
+
+### Cost Overview
+![Cost Overview](cost-overview.png)
+
+### Data Source
+![Data Source](data-source.png)
+
+This project ensures cost-efficient cloud management by providing visibility, automation, and alerting for AWS expenses.
+
+
