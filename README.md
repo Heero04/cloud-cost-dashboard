@@ -35,7 +35,7 @@ The **Cloud Cost Optimization Dashboard** automates the tracking and monitoring 
 
 ## Architecture Diagram
 
-![Architecture Diagram](architecture_v2.png)
+![Architecture Diagram](architecture.png)
 
 ## Technologies Used
 - **AWS Lambda** - Fetches cost data.
