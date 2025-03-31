@@ -1,4 +1,4 @@
-name: Deploy AWS Resources
+name: Full AWS Security & Optimization Pipeline
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
       - main
 
 jobs:
-  deploy:
+  security_and_optimization:
     runs-on: ubuntu-latest
     environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
 
@@ -22,13 +22,40 @@ jobs:
       - name: Configure AWS Credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::469440861178:role/GitHubActionsRole  # Replace with your AWS IAM role ARN
+          role-to-assume: arn:aws:iam::469440861178:role/GitHubActionsRole  # Updated IAM Role ARN
           aws-region: us-east-1
 
-      - name: Initialize Terraform
-        run: |
-          terraform init
-          terraform workspace select ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }} || terraform workspace new ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+      # 1. tfsec - Terraform Security Scan Before Deployment
+      - name: Run tfsec Security Scan
+        uses: aquasecurity/tfsec-action@v1.0.0
+        with:
+          working_directory: .
+          soft_fail: false  # Set to true if you don’t want it to block deployments
 
-     # - name: Apply Terraform Changes
-     #   run: terraform apply -auto-approve
+      # 2. AWS Well-Architected Tool - Check AWS Security & Best Practices
+      - name: AWS Well-Architected Review Findings
+        run: |
+          WORKLOAD_ID="2a76e2c1bdbd5cba2df2088161181b62"  # ✅ Updated Workload ID
+
+          echo "📌 Fetching AWS Well-Architected Lenses..."
+          aws wellarchitected list-lenses --region us-east-1 | jq
+          
+          echo "📌 Fetching Workload Risk Summary..."
+          aws wellarchitected get-workload --workload-id $WORKLOAD_ID --region us-east-1 | jq
+          
+          echo "📌 Listing AWS Improvement Recommendations..."
+          aws wellarchitected list-lens-review-improvements --workload-id $WORKLOAD_ID --lens-alias "wellarchitected" --region us-east-1 | jq
+
+      # 3. AWS Trusted Advisor - Cost Optimization & Security Checks
+      - name: AWS Trusted Advisor Security & Cost Report
+        run: |
+          aws support describe-trusted-advisor-checks --region us-east-1 | jq
+
+      # 4. GitHub CodeQL - Scan Terraform & Other Code for Vulnerabilities
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: terraform  # Add more if needed (e.g., python, javascript)
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
