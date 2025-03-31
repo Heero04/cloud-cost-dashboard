@@ -25,25 +25,25 @@ jobs:
           role-to-assume: arn:aws:iam::469440861178:role/GitHubActionsRole  # Updated IAM Role ARN
           aws-region: us-east-1
 
-      # 1. tfsec - Terraform Security Scan Before Deployment
+      # 1  tfsec - Terraform Security Scan Before Deployment
       - name: Run tfsec Security Scan
         uses: aquasecurity/tfsec-action@v1.0.0
         with:
           working_directory: .
-          soft_fail: false  # Set to true if you don’t want it to block deployments
+          soft_fail: false  # Set to true if you don't want it to block deployments
 
       # 2. AWS Well-Architected Tool - Check AWS Security & Best Practices
       - name: AWS Well-Architected Review Findings
         run: |
-          WORKLOAD_ID="2a76e2c1bdbd5cba2df2088161181b62"  # ✅ Updated Workload ID
+          WORKLOAD_ID="2a76e2c1bdbd5cba2df2088161181b62"  # Updated Workload ID
 
-          echo "📌 Fetching AWS Well-Architected Lenses..."
+          echo "Fetching AWS Well-Architected Lenses..."
           aws wellarchitected list-lenses --region us-east-1 | jq
           
-          echo "📌 Fetching Workload Risk Summary..."
+          echo "Fetching Workload Risk Summary..."
           aws wellarchitected get-workload --workload-id $WORKLOAD_ID --region us-east-1 | jq
           
-          echo "📌 Listing AWS Improvement Recommendations..."
+          echo "Listing AWS Improvement Recommendations..."
           aws wellarchitected list-lens-review-improvements --workload-id $WORKLOAD_ID --lens-alias "wellarchitected" --region us-east-1 | jq
 
       # 3. AWS Trusted Advisor - Cost Optimization & Security Checks
