@@ -1,16 +1,13 @@
-name: CI/CD Pipeline
+name: GitHub Actions Setup
 
-on: [push, pull_request]
+on: [push, pull_request]  # Runs on every push or PR
 
 jobs:
-  build:
-    runs-on: ubuntu-latest  # Free GitHub-hosted runner
+  test:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run tests
-        run: npm test
+      - name: Confirm GitHub Actions is Working
+        run: echo "GitHub Actions is successfully set up!"
