@@ -4,18 +4,19 @@ This file defines an Athena database and Glue catalog table:
  
   - Analyzing cost data stored in CSV format
   - The table schema includes columns for cost, date, and service information
+  - Uses Terraform Workspaces to differentiate between Dev and Prod
 
 */
 
 # Athena Database definition (No encryption)
 resource "aws_athena_database" "cost_data_db" {
-  name   = "cost_data_db"
+  name   = "cost_data_db-${terraform.workspace}" # Creates 'cost_data_db-dev' or 'cost_data_db-prod'
   bucket = aws_s3_bucket.cost_data_bucket.bucket
 }
 
 # Glue Table for Athena Querying
 resource "aws_glue_catalog_table" "cost_data_table" {
-  name          = "cost_data"
+  name          = "cost_data-${terraform.workspace}" # Creates 'cost_data-dev' or 'cost_data-prod'
   database_name = aws_athena_database.cost_data_db.name
   table_type    = "EXTERNAL_TABLE"
 
@@ -26,7 +27,7 @@ resource "aws_glue_catalog_table" "cost_data_table" {
   }
 
   storage_descriptor {
-    location      = "s3://${aws_s3_bucket.cost_data_bucket.bucket}/processed-cost-reports/"
+    location      = "s3://cost-data-${terraform.workspace}/processed-cost-reports/" # Uses correct workspace bucket
     input_format  = "org.apache.hadoop.mapred.TextInputFormat"
     output_format = "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat"
 
@@ -55,5 +56,3 @@ resource "aws_glue_catalog_table" "cost_data_table" {
     }
   }
 }
-
-

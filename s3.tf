@@ -4,12 +4,13 @@ This file creates and configures S3 buckets for a cost dashboard solution:
 - Creates a bucket for storing cost data with server-side encryption
 - Sets up folders within the cost data bucket for raw JSON and processed CSV files
 - Creates a separate bucket for storing Glue ETL scripts with proper access controls
+- Uses Terraform Workspaces to differentiate between Dev and Prod environments
 
 */
 
 # Creates the main S3 bucket to store cost data
 resource "aws_s3_bucket" "cost_data_bucket" {
-  bucket = "XXXXXXXXXXXXXXXXXXXXX"
+  bucket = "cost-data-${terraform.workspace}" # Creates 'cost-data-dev' or 'cost-data-prod'
 }
 
 # Configures server-side encryption using KMS for the cost data bucket
@@ -40,7 +41,7 @@ resource "aws_s3_object" "csv_folder" {
 
 # Creates an S3 bucket for storing Glue ETL scripts
 resource "aws_s3_bucket" "script_bucket" {
-  bucket = "XXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  bucket = "script-bucket-${terraform.workspace}" # Creates 'script-bucket-dev' or 'script-bucket-prod'
 }
 
 # Blocks all public access to the scripts bucket
@@ -67,5 +68,6 @@ resource "aws_s3_bucket_policy" "script_bucket_policy" {
     ]
   })
 }
+
 
 
