@@ -53,9 +53,9 @@ jobs:
 
       # 4. GitHub CodeQL - Scan Terraform & Other Code for Vulnerabilities
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: terraform  # Add more if needed (e.g., python, javascript)
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
