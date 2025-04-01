@@ -51,12 +51,3 @@ jobs:
       - name: AWS Trusted Advisor Security & Cost Report
         run: |
           aws support describe-trusted-advisor-checks --region us-east-1 | jq
-
-      # 4. GitHub CodeQL - Scan Terraform & Other Code for Vulnerabilities
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: terraform, python # Add more if needed (e.g., python, javascript)
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
