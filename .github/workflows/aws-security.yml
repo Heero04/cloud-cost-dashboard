@@ -14,6 +14,7 @@ jobs:
     permissions:
       id-token: write  # Required for OIDC authentication
       contents: read
+      security-events: write 
 
     steps:
       - name: Checkout Repository
