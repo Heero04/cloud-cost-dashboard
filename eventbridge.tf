@@ -16,7 +16,7 @@ triggering of the Cost Explorer Lambda function. It includes:
 resource "aws_cloudwatch_event_rule" "cost_explorer_schedule" {
   name                = "cost-explorer-schedule-${terraform.workspace}" # Creates 'cost-explorer-schedule-dev' or 'cost-explorer-schedule-prod'
   description         = "Runs at 12:00 UTC on the 1st day of every month ${terraform.workspace}"
-  schedule_expression = "cron(0 12 1 * ? *)"  # Runs at 13:00 UTC on the 1st day of every month
+  schedule_expression = "cron(0 12 1 * ? *)"  # Runs at 12:00 UTC on the 1st day of every month
   #schedule_expression = "cron(0 12 ? * FRI *)" # Every Friday at 12:00 UTC
 }
 
