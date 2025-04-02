@@ -35,7 +35,7 @@ s3_client = boto3.client('s3')  # S3 client
 sns_client = boto3.client('sns')  # SNS client (for notifications)
 
 # Environment Variables
-s3_bucket = os.environ.get('S3_BUCKET', 'your-cost-data-bucket')  # S3 bucket name
+s3_bucket = os.environ.get('S3_BUCKET')  # S3 bucket name
 sns_topic_arn = os.environ.get('SNS_TOPIC_ARN', 'your-sns-topic-arn')  # SNS topic ARN
 
 
@@ -53,6 +53,9 @@ def lambda_handler(event, context):
         # Send SNS Notification on Lambda Trigger
         send_sns_alert("✅ AWS Lambda Function Triggered", "AWS Lambda function executed successfully.")
         
+        # Calculate the start of the year and end of the previous month
+        today = datetime.today()
+
         # Calculate the first and last day of the previous month
         today = datetime.today()
         first_day_prev_month = today.replace(day=1) - timedelta(days=1)
@@ -60,7 +63,6 @@ def lambda_handler(event, context):
         last_day_prev_month = first_day_prev_month + timedelta(
             days=calendar.monthrange(first_day_prev_month.year, first_day_prev_month.month)[1] - 1
         )
-
         start_date = first_day_prev_month.strftime('%Y-%m-%d')
         end_date = last_day_prev_month.strftime('%Y-%m-%d')
 
@@ -112,7 +114,6 @@ def lambda_handler(event, context):
     
     except Exception as e:
         logger.error("Unexpected error processing cost data", exc_info=True)
-        send_message_to_teams(f"Lambda Error: Unexpected error processing cost data: {str(e)}")
         return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
 
 def send_sns_alert(subject, message):

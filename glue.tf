@@ -21,7 +21,7 @@ resource "aws_glue_job" "json_to_csv" {
 
   command {
     name            = "glueetl"
-    script_location = "s3://script-bucket-${terraform.workspace}/glue-scripts/json_to_csv.py"  
+    script_location = "s3://glue-scripts-${terraform.workspace}-costdash/glue-scripts/json_to_csv.py"  
     python_version  = "3"
   }
 
@@ -37,7 +37,8 @@ resource "aws_glue_job" "json_to_csv" {
 resource "aws_glue_trigger" "json_to_csv_trigger" {
   name     = "convert-json-to-csv-trigger-${terraform.workspace}"
   type     = "SCHEDULED"
-  schedule = "cron(0 13 ? * FRI *)"  # Runs every Friday at 13:00 UTC  
+  schedule = "cron(0 13 1 * ? *)"  # Runs at 13:00 UTC on the 1st day of every month
+  #schedule = "cron(0 13 ? * FRI *)"  # Runs every Friday at 13:00 UTC  
 
   actions {
     job_name = aws_glue_job.json_to_csv.name
@@ -56,3 +57,4 @@ resource "aws_glue_crawler" "csv_crawler" {
 
   schedule = "cron(10 4 * * ? *)"  # Runs at 4:10 AM UTC = 10:10 PM CST
 }
+

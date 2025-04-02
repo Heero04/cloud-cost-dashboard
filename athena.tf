@@ -10,7 +10,7 @@ This file defines an Athena database and Glue catalog table:
 
 # Athena Database definition (No encryption)
 resource "aws_athena_database" "cost_data_db" {
-  name   = "cost_data_db-${terraform.workspace}" # Creates 'cost_data_db-dev' or 'cost_data_db-prod'
+  name   = "cost_data_db_${terraform.workspace}" # Creates 'cost_data_db_dev' or 'cost_data_db_prod'
   bucket = aws_s3_bucket.cost_data_bucket.bucket
 }
 

@@ -9,7 +9,7 @@ This Terraform code creates an AWS Lambda function for cost exploration and moni
 
 # AWS Lambda function resource for cost exploration
 resource "aws_lambda_function" "cost_lambda" {
-  filename      = "lambda_function_v2.zip"
+  filename      = "lambda_function.zip"
   function_name = "CostExplorerLambda-${terraform.workspace}" # Creates CostExplorerLambda-dev or CostExplorerLambda-prod
   role          = aws_iam_role.lambda_role.arn
   handler       = "lambda_function.lambda_handler"
@@ -23,7 +23,7 @@ resource "aws_lambda_function" "cost_lambda" {
   }
 
   tags = {
-    Name        = "CostExplorerLambda-${terraform.workspace}" # Tags it properly for Dev and Prod
+    Name        = "CostExplorerLambda-${terraform.workspace}" # Tags it properly for Dev and prod
     Environment = terraform.workspace
     Project     = "CloudCostDashboard"
   }

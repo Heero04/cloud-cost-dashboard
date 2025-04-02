@@ -14,8 +14,8 @@ resource "aws_kms_key" "s3_encryption_key" {
   enable_key_rotation     = true
 }
 
-# Friendly alias name for the KMS key to make it easier to reference
+# Create an alias for the KMS key that includes the workspace name for environment-specific identification
 resource "aws_kms_alias" "s3_encryption_alias" {
-  name          = "alias/s3-cost-data-key"
+  name          = "alias/s3-cost-data-key-${terraform.workspace}"
   target_key_id = aws_kms_key.s3_encryption_key.key_id
 }

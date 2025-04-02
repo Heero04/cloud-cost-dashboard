@@ -3,6 +3,10 @@
 *.tfstate.*
 .terraform/
 .terraform.lock.hcl
+*.tfplan
+*.tfvars
+
+outputs.tf
 
 # Python
 __pycache__/

@@ -23,7 +23,7 @@ This file defines IAM roles and policies for multiple AWS services:
 
 # IAM role for Lambda function execution with necessary permissions
 resource "aws_iam_role" "lambda_role" {
-  name = "cost-dashboard-lambda-role"
+  name = "cost-dashboard-lambda-role-${terraform.workspace}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -43,7 +43,7 @@ resource "aws_iam_role" "lambda_role" {
 
 # Policy allowing Lambda to access AWS Cost Explorer API
 resource "aws_iam_policy" "cost_explorer_policy" {
-  name        = "CostExplorerAccess"
+  name        = "CostExplorerAccess-${terraform.workspace}"
   description = "Allows Lambda to fetch cost data from Cost Explorer"
 
   policy = jsonencode({
@@ -64,7 +64,7 @@ resource "aws_iam_role_policy_attachment" "attach_policy" {
 
 # Policy allowing Lambda to read/write to S3 bucket
 resource "aws_iam_policy" "s3_access_policy" {
-  name        = "S3AccessPolicy"
+  name        = "S3AccessPolicy-${terraform.workspace}"
   description = "Allows Lambda to store cost data in S3"
 
   policy = jsonencode({
@@ -73,7 +73,7 @@ resource "aws_iam_policy" "s3_access_policy" {
       {
         Effect   = "Allow"
         Action   = ["s3:PutObject", "s3:GetObject"]
-        Resource = "arn:aws:s3:::your-cost-data-bucket/*"
+        Resource = "arn:aws:s3:::cost-data-${terraform.workspace}/cost-reports/*"
       }
     ]
   })
@@ -87,7 +87,7 @@ resource "aws_iam_role_policy_attachment" "s3_access_attachment" {
 
 # Policy allowing Lambda to publish to SNS topics
 resource "aws_iam_policy" "sns_publish_policy" {
-  name        = "SNSPublishPolicy"
+  name        = "SNSPublishPolicy-${terraform.workspace}"
   description = "Allows Lambda to send cost alerts via SNS"
 
   policy = jsonencode({
@@ -110,7 +110,7 @@ resource "aws_iam_role_policy_attachment" "sns_publish_attachment" {
 
 # Policy allowing Lambda to write logs to CloudWatch
 resource "aws_iam_policy" "lambda_logging_policy" {
-  name        = "LambdaLoggingPolicy"
+  name        = "LambdaLoggingPolicy-${terraform.workspace}"
   description = "Allows Lambda to write logs to CloudWatch"
 
   policy = jsonencode({
@@ -142,7 +142,7 @@ resource "aws_kms_grant" "lambda_kms_access" {
 
 # IAM role for EventBridge to execute Lambda functions
 resource "aws_iam_role" "eventbridge_role" {
-  name = "eventbridge-lambda-execution-role"
+  name = "eventbridge-lambda-execution-role-${terraform.workspace}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -166,7 +166,7 @@ resource "aws_iam_role" "eventbridge_role" {
 
 # Policy allowing EventBridge to invoke Lambda functions
 resource "aws_iam_policy" "eventbridge_lambda_policy" {
-  name        = "EventBridgeInvokeLambdaPolicy"
+  name        = "EventBridgeInvokeLambdaPolicy-${terraform.workspace}"
   description = "Allows EventBridge to invoke Lambda function"
 
   policy = jsonencode({
@@ -217,13 +217,13 @@ data "aws_iam_policy_document" "athena_s3_access" {
 
 # Policy allowing Athena to access S3 and use KMS
 resource "aws_iam_policy" "athena_s3_policy" {
-  name   = "athena-s3-access-policy"
+  name   = "athena-s3-access-policy-${terraform.workspace}"
   policy = data.aws_iam_policy_document.athena_s3_access.json
 }
 
 # IAM role for Athena service
 resource "aws_iam_role" "athena_role" {
-  name = "athena_s3_access_role"
+  name = "athena_s3_access_role-${terraform.workspace}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -245,7 +245,7 @@ resource "aws_iam_role_policy_attachment" "athena_s3_attachment" {
 
 # IAM role for AWS Glue service
 resource "aws_iam_role" "glue_role" {
-  name = "AWSGlueServiceRole"
+  name = "AWSGlueServiceRole-${terraform.workspace}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -261,7 +261,7 @@ resource "aws_iam_role" "glue_role" {
 
 # Combined policy for Glue's S3 and KMS access
 resource "aws_iam_policy" "glue_s3_kms_access" {
-  name = "AWSGlueS3KMSAccess"
+  name = "AWSGlueS3KMSAccess-${terraform.workspace}"
 
   policy = jsonencode({
     Version = "2012-10-17",
@@ -275,8 +275,8 @@ resource "aws_iam_policy" "glue_s3_kms_access" {
           "s3:ListBucket"
         ],
         Resource = [
-          "arn:aws:s3:::your-cost-data-bucket/cost-reports/*",
-          "arn:aws:s3:::your-cost-data-bucket/processed-cost-reports/*"
+          "${aws_s3_bucket.cost_data_bucket.arn}/cost-reports/*",
+           "${aws_s3_bucket.cost_data_bucket.arn}/processed-cost-reports/*"
         ]
       },
 
@@ -288,8 +288,8 @@ resource "aws_iam_policy" "glue_s3_kms_access" {
           "s3:ListBucket"
         ],
         Resource = [
-          "arn:aws:s3:::your-script-bucket",
-          "arn:aws:s3:::your-script-bucket/glue-scripts/*"
+          "${aws_s3_bucket.script_bucket.arn}",
+          "${aws_s3_bucket.script_bucket.arn}/glue-scripts/*"
         ]
       },
 
@@ -314,7 +314,7 @@ resource "aws_iam_role_policy_attachment" "glue_kms_attach" {
 
 # Policy allowing Glue to access scripts in S3
 resource "aws_iam_policy" "glue_s3_script_access" {
-  name        = "AWSGlueS3ScriptAccess"
+  name        = "AWSGlueS3ScriptAccess-${terraform.workspace}"
   description = "Allows AWS Glue to get the script from S3"
 
   policy = jsonencode({
@@ -322,12 +322,19 @@ resource "aws_iam_policy" "glue_s3_script_access" {
     Statement = [
       {
         Effect = "Allow",
-        Action = ["s3:GetObject"],
-        Resource = "arn:aws:s3:::your-cost-dashboard-scripts/glue-scripts/json_to_csv.py"
+        Action = [
+          "s3:GetObject",
+          "s3:ListBucket"
+        ],
+        Resource = [
+          "arn:aws:s3:::glue-scripts-${terraform.workspace}-costdash",
+          "arn:aws:s3:::glue-scripts-${terraform.workspace}-costdash/glue-scripts/*"
+        ]
       }
     ]
   })
 }
+
 
 # Attaches script access policy to Glue role
 resource "aws_iam_role_policy_attachment" "glue_s3_script_attach" {
@@ -337,7 +344,7 @@ resource "aws_iam_role_policy_attachment" "glue_s3_script_attach" {
 
 # Policy allowing Glue to list S3 bucket contents
 resource "aws_iam_policy" "glue_s3_list_access" {
-  name        = "AWSGlueS3ListBucketAccess"
+  name        = "AWSGlueS3ListBucketAccess-${terraform.workspace}"
   description = "Allows AWS Glue to list the cost data bucket"
 
   policy = jsonencode({
@@ -346,7 +353,7 @@ resource "aws_iam_policy" "glue_s3_list_access" {
       {
         Effect = "Allow",
         Action = ["s3:ListBucket"],
-        Resource = "arn:aws:s3:::your-cost-data-bucket"
+        Resource = "${aws_s3_bucket.cost_data_bucket.arn}"
       }
     ]
   })

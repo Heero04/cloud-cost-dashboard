@@ -41,7 +41,7 @@ resource "aws_s3_object" "csv_folder" {
 
 # Creates an S3 bucket for storing Glue ETL scripts
 resource "aws_s3_bucket" "script_bucket" {
-  bucket = "script-bucket-${terraform.workspace}" # Creates 'script-bucket-dev' or 'script-bucket-prod'
+  bucket = "glue-scripts-${terraform.workspace}-costdash" # Creates 'glue-scripts-dev' or 'glue-scripts-prod'
 }
 
 # Blocks all public access to the scripts bucket
